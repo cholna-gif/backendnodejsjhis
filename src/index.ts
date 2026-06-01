@@ -30,8 +30,7 @@ app.use('/api/drivers', driversRouter);
 app.use(errorHandler);
 
 app.listen(Number(PORT), '0.0.0.0', () => {
-  console.log(`Jih backend running on http://0.0.0.0:${PORT}`);
-  console.log(`Reachable from devices on: http://192.168.110.208:${PORT}`);
+  console.log(`Jih backend running on port ${PORT}`);
 });
 
 export default app;
