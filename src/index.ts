@@ -8,6 +8,10 @@ import chatRouter from './routes/chat';
 import supportRouter from './routes/support';
 import favoritesRouter from './routes/favorites';
 import driversRouter from './routes/drivers';
+import driverProfileRouter from './routes/driver-profile';
+import driverRidesRouter from './routes/driver-rides';
+import driverEarningsRouter from './routes/driver-earnings';
+import driverAuthRouter from './routes/driver-auth';
 import { errorHandler } from './middleware/errorHandler';
 
 dotenv.config();
@@ -26,6 +30,12 @@ app.use('/api/chat', chatRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/drivers', driversRouter);
+
+// ── Driver mobile app routes ──────────────────────────────────────────────────
+app.use('/api/driver/profile',  driverProfileRouter);
+app.use('/api/driver/rides',    driverRidesRouter);
+app.use('/api/driver/earnings', driverEarningsRouter);
+app.use('/api/driver/auth',     driverAuthRouter);
 
 app.use(errorHandler);
 
