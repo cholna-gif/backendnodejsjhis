@@ -8,6 +8,7 @@ import chatRouter from './routes/chat';
 import supportRouter from './routes/support';
 import favoritesRouter from './routes/favorites';
 import driversRouter from './routes/drivers';
+import authRouter from './routes/auth';
 import driverProfileRouter from './routes/driver-profile';
 import driverRidesRouter from './routes/driver-rides';
 import driverEarningsRouter from './routes/driver-earnings';
@@ -30,6 +31,7 @@ app.use('/api/chat', chatRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/favorites', favoritesRouter);
 app.use('/api/drivers', driversRouter);
+app.use('/api/auth', authRouter);
 
 // ── Driver mobile app routes ──────────────────────────────────────────────────
 app.use('/api/driver/profile',  driverProfileRouter);

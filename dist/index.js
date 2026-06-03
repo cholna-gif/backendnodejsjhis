@@ -1,0 +1,43 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const dotenv_1 = __importDefault(require("dotenv"));
+const profile_1 = __importDefault(require("./routes/profile"));
+const rides_1 = __importDefault(require("./routes/rides"));
+const chat_1 = __importDefault(require("./routes/chat"));
+const support_1 = __importDefault(require("./routes/support"));
+const favorites_1 = __importDefault(require("./routes/favorites"));
+const drivers_1 = __importDefault(require("./routes/drivers"));
+const auth_1 = __importDefault(require("./routes/auth"));
+const driver_profile_1 = __importDefault(require("./routes/driver-profile"));
+const driver_rides_1 = __importDefault(require("./routes/driver-rides"));
+const driver_earnings_1 = __importDefault(require("./routes/driver-earnings"));
+const driver_auth_1 = __importDefault(require("./routes/driver-auth"));
+const errorHandler_1 = require("./middleware/errorHandler");
+dotenv_1.default.config();
+const app = (0, express_1.default)();
+const PORT = process.env.PORT ?? 3000;
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+app.use('/api/profile', profile_1.default);
+app.use('/api/rides', rides_1.default);
+app.use('/api/chat', chat_1.default);
+app.use('/api/support', support_1.default);
+app.use('/api/favorites', favorites_1.default);
+app.use('/api/drivers', drivers_1.default);
+app.use('/api/auth', auth_1.default);
+// ── Driver mobile app routes ──────────────────────────────────────────────────
+app.use('/api/driver/profile', driver_profile_1.default);
+app.use('/api/driver/rides', driver_rides_1.default);
+app.use('/api/driver/earnings', driver_earnings_1.default);
+app.use('/api/driver/auth', driver_auth_1.default);
+app.use(errorHandler_1.errorHandler);
+app.listen(Number(PORT), '0.0.0.0', () => {
+    console.log(`Jih backend running on port ${PORT}`);
+});
+exports.default = app;
