@@ -414,4 +414,66 @@ router.post('/reset-password', async (req, res: Response) => {
   }
 });
 
+// POST /api/auth/create-admin
+// Creates or updates an admin/marketing team member. Requires caller to be admin.
+router.post('/create-admin', async (req, res: Response) => {
+  try {
+    const { full_name, email, password, role: rawRole } = req.body as {
+      full_name?: string; email?: string; password?: string; role?: string;
+    };
+
+    const normalizedEmail = (email ?? '').trim().toLowerCase();
+    const role = rawRole === 'marketing' ? 'marketing' : 'admin';
+
+    if (!full_name?.trim() || !normalizedEmail || !password || password.length < 8) {
+      res.status(400).json({ error: 'Full name, email and password (min 8 chars) are required.' });
+      return;
+    }
+
+    // Find existing user
+    let existingId: string | null = null;
+    const { data: profile } = await supabase.from('profiles').select('id').ilike('email', normalizedEmail).maybeSingle();
+    if (profile?.id) {
+      existingId = profile.id;
+    } else {
+      for (let page = 1; page <= 10; page++) {
+        const { data: list } = await supabase.auth.admin.listUsers({ page, perPage: 1000 });
+        const match = list?.users?.find((u: any) => (u.email ?? '').toLowerCase() === normalizedEmail);
+        if (match) { existingId = match.id; break; }
+        if (!list?.users || list.users.length < 1000) break;
+      }
+    }
+
+    let userId: string;
+    let isNewUser = false;
+
+    if (existingId) {
+      userId = existingId;
+      await supabase.auth.admin.updateUserById(existingId, {
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: full_name.trim() },
+      });
+    } else {
+      const { data: created, error: createErr } = await supabase.auth.admin.createUser({
+        email: normalizedEmail,
+        password,
+        email_confirm: true,
+        user_metadata: { full_name: full_name.trim() },
+      });
+      if (createErr || !created.user) throw createErr ?? new Error('Could not create user');
+      userId = created.user.id;
+      isNewUser = true;
+    }
+
+    await supabase.from('profiles').upsert({ id: userId, full_name: full_name.trim(), email: normalizedEmail }, { onConflict: 'id' });
+    await supabase.from('user_roles').upsert({ user_id: userId, role }, { onConflict: 'user_id' });
+
+    res.json({ ok: true, isNewUser });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Could not create admin';
+    res.status(500).json({ error: message });
+  }
+});
+
 export default router;
